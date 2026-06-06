@@ -1,0 +1,84 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@300;400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;1,8..60,300;1,8..60,400&display=swap');
+
+:root {
+  --bg: #f5f0e8;
+  --bg-warm: #ede8de;
+  --surface: #ffffff;
+  --surface-2: #faf7f2;
+  --border: #ddd8cc;
+  --border-dark: #c4bfb2;
+  --accent: #8b5e3c;
+  --accent-light: #b07d54;
+  --accent-pale: #f0e6d8;
+  --text: #2c2420;
+  --text-muted: #7a6e65;
+  --text-dim: #b0a89e;
+  --success: #3d7a5c;
+  --success-pale: #e8f4ee;
+  --danger: #8b3c3c;
+  --danger-pale: #f4e8e8;
+  --gold: #8b5e3c;
+  --ink: #1a1310;
+
+  --shadow-sm: 0 1px 3px rgba(44,36,32,0.08);
+  --shadow-md: 0 4px 16px rgba(44,36,32,0.10);
+  --shadow-lg: 0 8px 32px rgba(44,36,32,0.12);
+
+  --radius: 8px;
+  --radius-sm: 4px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Source Serif 4', Georgia, serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+/* Subtle paper texture */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9998;
+}
+
+h1, h2, h3, h4 { font-family: 'Playfair Display', Georgia, serif; }
+.mono { font-family: 'JetBrains Mono', monospace; }
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg-warm); }
+::-webkit-scrollbar-thumb { background: var(--border-dark); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-light); }
+
+.container { max-width: 960px; margin: 0 auto; padding: 0 2rem; }
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: var(--accent-pale);
+  border: 1px solid rgba(139,94,60,0.2);
+  color: var(--accent);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 500;
+  padding: 0.2rem 0.6rem;
+  border-radius: 3px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.tag.success {
+  background: var(--success-pale);
+  border-color: rgba(61,122,92,0.2);
+  color: var(--success);
+}

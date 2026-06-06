@@ -1,0 +1,301 @@
+.results-page { min-height: 100vh; padding-bottom: 4rem; }
+
+.results-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 2rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.back-btn {
+  background: none;
+  border: 1px solid var(--border-dark);
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.back-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+.file-badges { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+.results-main { padding-top: 2rem; }
+
+/* Result card */
+.result-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-md);
+  animation: fadeUp 0.35s ease both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.card-title-row {
+  padding: 1.5rem 1.5rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
+}
+
+.card-title-row .tag { margin-bottom: 0.65rem; }
+
+.card-title {
+  font-size: 1.25rem;
+  color: var(--ink);
+  line-height: 1.4;
+  font-weight: 600;
+}
+
+/* ── Accordion ── */
+.acc-section {
+  border-bottom: 1px solid var(--border);
+}
+.acc-section:last-child { border-bottom: none; }
+
+.acc-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.acc-header:hover { background: var(--bg); }
+.acc-section.open .acc-header { background: var(--surface-2); }
+
+.acc-header-left { display: flex; align-items: center; gap: 0.65rem; }
+
+.acc-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--border-dark);
+}
+.acc-dot.blue { background: #4a7eb5; }
+.acc-dot.green { background: var(--success); }
+.acc-dot.amber { background: #b57c4a; }
+.acc-dot.red { background: var(--danger); }
+
+.acc-label {
+  font-family: 'Source Serif 4', serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.acc-count {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  background: var(--bg-warm);
+  border: 1px solid var(--border);
+  padding: 0.1rem 0.45rem;
+  border-radius: 10px;
+}
+
+.acc-chevron {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1rem;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+
+.acc-body {
+  padding: 1rem 1.5rem 1.25rem;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Text field ── */
+.text-field {
+  font-size: 0.93rem;
+  color: var(--text);
+  line-height: 1.75;
+}
+
+.empty-msg {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+/* ── Pill list ── */
+.pill-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.pill-item {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  padding: 0.5rem 0.85rem;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  border-left: 2px solid var(--border-dark);
+}
+
+/* ── Numbered list ── */
+.num-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.num-item {
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+  font-size: 0.9rem;
+  color: var(--text);
+  line-height: 1.65;
+}
+
+.num-item.highlight {
+  background: var(--success-pale);
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius-sm);
+  border-left: 2px solid var(--success);
+}
+
+.num-bullet {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  color: var(--accent);
+  background: var(--accent-pale);
+  padding: 0.15rem 0.35rem;
+  border-radius: 2px;
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+
+.num-item.highlight .num-bullet {
+  background: rgba(61,122,92,0.15);
+  color: var(--success);
+}
+
+/* ── Comparison ── */
+.comparison-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  margin-bottom: 0;
+}
+
+.paper-col {
+  background: var(--surface);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.paper-col-header {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.paper-num {
+  color: var(--accent);
+  font-size: 0.75rem;
+  background: var(--accent-pale);
+  padding: 0.15rem 0.4rem;
+  border-radius: 3px;
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+
+.paper-col-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.9rem;
+  color: var(--ink);
+  line-height: 1.4;
+}
+
+.paper-field { display: flex; flex-direction: column; gap: 0.25rem; }
+
+.paper-field-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.paper-field p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+
+.inline-list {
+  list-style: none;
+  font-size: 0.83rem;
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.inline-list li::before { margin-right: 0.4rem; }
+.inline-list.green li::before { content: "+"; color: var(--success); }
+.inline-list.red li::before { content: "−"; color: var(--danger); }
+
+/* ── Custom query ── */
+.query-pill {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  padding: 1rem 1.5rem;
+  background: var(--accent-pale);
+  border-bottom: 1px solid rgba(139,94,60,0.15);
+}
+
+.query-q {
+  font-size: 0.7rem;
+  color: var(--accent);
+  background: rgba(139,94,60,0.15);
+  padding: 0.2rem 0.45rem;
+  border-radius: 3px;
+  flex-shrink: 0;
+  margin-top: 0.05rem;
+}
+
+.query-pill span:last-child {
+  font-size: 0.92rem;
+  color: var(--text);
+  line-height: 1.65;
+  font-style: italic;
+}
