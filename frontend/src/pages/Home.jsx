@@ -2,6 +2,7 @@ import React, { useState, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useAuth } from "../context/AuthContext";
 import "./Home.css";
 
 const LENSES = [
@@ -18,6 +19,7 @@ export default function Home() {
   const [customQuery, setCustomQuery] = useState("");
   const [loading, setLoading]       = useState(false);
   const [error, setError]           = useState("");
+  const { getToken } = useAuth();
   const navigate = useNavigate();
 
   const onDrop = useCallback((accepted) => {
@@ -40,7 +42,9 @@ export default function Home() {
     fd.append("lens", lens);
     fd.append("custom_query", customQuery);
     try {
-      const res = await axios.post("http://localhost:5000/analyze", fd);
+      const res = await axios.post("http://localhost:5000/analyze", fd, {
+        headers: { Authorization: `Bearer ${getToken()}` }
+      });
       navigate("/results", { state: { data: res.data, files: files.map((f) => f.name) } });
     } catch (e) {
       setError(e.response?.data?.error || "Something went wrong. Is the backend running?");

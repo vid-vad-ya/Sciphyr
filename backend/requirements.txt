@@ -1,5 +1,9 @@
 flask
 flask-cors
 pymupdf
-google-generativeai
+google-genai
 python-dotenv
+psycopg2-binary
+bcrypt
+PyJWT
+gunicorn

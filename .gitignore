@@ -1,15 +1,18 @@
-# Node
-node_modules/
+# Environment & secrets — NEVER commit these
+backend/.env
+backend/uploads/
+backend/venv/
 
 # Python
-venv/
-.venv/
 __pycache__/
-*.pyc
+*.py[cod]
+*.egg-info/
+.pytest_cache/
 
-# Environment variables
-.env
+# Node
+frontend/node_modules/
+frontend/build/
 
-# Build folders
-dist/
-build/
+# OS
+.DS_Store
+Thumbs.db

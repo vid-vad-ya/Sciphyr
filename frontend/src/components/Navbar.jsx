@@ -1,10 +1,14 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import "./Navbar.css";
 
 export default function Navbar() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const { user, logout } = useAuth();
+
+  const handleLogout = () => { logout(); navigate("/"); };
 
   return (
     <nav className="navbar">
@@ -15,26 +19,28 @@ export default function Navbar() {
         </button>
 
         <div className="nav-links">
-          <button
-            className={`nav-link ${pathname === "/" ? "active" : ""}`}
-            onClick={() => navigate("/")}
-          >
-            About
-          </button>
-          <button
-            className={`nav-link ${pathname === "/analyze" ? "active" : ""}`}
-            onClick={() => navigate("/analyze")}
-          >
-            Analyze
-          </button>
-          {pathname === "/results" && (
-            <span className="nav-breadcrumb">→ Results</span>
+          <button className={`nav-link ${pathname === "/" ? "active" : ""}`} onClick={() => navigate("/")}>About</button>
+          {user && (
+            <button className={`nav-link ${pathname === "/analyze" ? "active" : ""}`} onClick={() => navigate("/analyze")}>Analyze</button>
           )}
+          {pathname === "/results" && <span className="nav-breadcrumb">→ Results</span>}
         </div>
 
-        <button className="nav-cta" onClick={() => navigate("/analyze")}>
-          Try it →
-        </button>
+        <div className="nav-right">
+          {user ? (
+            <>
+              <span className="nav-user">
+                <span className="nav-user-icon">◉</span>
+                {user.name.split(" ")[0]}
+              </span>
+              <button className="nav-logout" onClick={handleLogout}>Log out</button>
+            </>
+          ) : (
+            <button className="nav-cta" onClick={() => navigate("/auth")}>
+              Get started →
+            </button>
+          )}
+        </div>
       </div>
     </nav>
   );

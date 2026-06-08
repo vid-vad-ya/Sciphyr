@@ -83,3 +83,14 @@ h1, h2, h3, h4 { font-family: 'Playfair Display', Georgia, serif; }
   border-color: rgba(61,122,92,0.2);
   color: var(--success);
 }
+
+.page-loading {
+  min-height: calc(100vh - 58px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: var(--accent);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
