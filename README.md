@@ -90,7 +90,7 @@ sciphyr/
 
 ---
 
-## How It Works (for interviews)
+## How It Works 
 
 1. **PDF Parsing**: PyMuPDF extracts raw text from uploaded papers, trimmed to ~30,000 chars to stay within API limits.
 
@@ -104,23 +104,8 @@ sciphyr/
 
 ---
 
-## Deployment (Free Tier)
 
-| Part | Platform | Notes |
-|------|----------|-------|
-| Frontend | Vercel | `npm run build` → deploy |
-| Backend | Railway | Add `GEMINI_API_KEY` as env var |
 
----
 
-## NLP Concepts Used (resume talking points)
 
-- **Prompt engineering** — structured JSON extraction with constrained output
-- **Document chunking** — handling long PDFs within context limits
-- **Information extraction** — NER-style structured field extraction via LLM
-- **Multi-document analysis** — comparative reasoning across papers
-- **RAG-adjacent architecture** — retrieval (PDF) + generation (Gemini)
 
----
-
-*Born from a literature survey on endometriosis detection at NIT Trichy.*
