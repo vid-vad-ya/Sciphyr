@@ -8,130 +8,168 @@ import re
 client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
 MODEL = "gemini-2.5-flash"
 
-# ── Lens prompts ────────────────────────────────────────────────────────────────
+# ── Lens prompts ─────────────────────────────────────────────────────────────
+# IMPORTANT: All list items must be SHORT phrases (max 10 words), not sentences.
+# The UI renders these as visual chips/cards — long sentences break the layout.
+
 LENS_PROMPTS = {
     "summary": """
-You are a research assistant. Analyse the research paper text below and return a JSON object with these exact keys:
+You are a research assistant. Analyse the paper and return JSON with these exact keys.
+CRITICAL: All list items must be SHORT PHRASES of max 8-10 words. No full sentences. No copying from the paper.
+Rewrite everything in your own words, simply and clearly.
+
 {
-  "title": "paper title",
-  "objective": "1-2 sentence core objective",
-  "methodology": "brief description of methods/approach used",
-  "dataset": "dataset(s) used (say 'Not specified' if unclear)",
-  "key_findings": ["finding 1", "finding 2", "finding 3"],
-  "limitations": ["limitation 1", "limitation 2"],
-  "conclusion": "1-2 sentence conclusion"
+  "title": "paper title (short version if long)",
+  "objective": "One plain-English sentence: what problem this paper solves",
+  "methodology": {
+    "approach": "Name of the main method/model used (e.g. Logistic Regression, CNN, RCT)",
+    "steps": ["step 1 short phrase", "step 2 short phrase", "step 3 short phrase", "step 4 short phrase"]
+  },
+  "dataset": {
+    "name": "dataset name or 'Not specified'",
+    "size": "number of samples/participants or 'Not reported'",
+    "type": "type of data (e.g. survey, imaging, clinical records)"
+  },
+  "key_findings": ["short finding phrase", "short finding phrase", "short finding phrase"],
+  "limitations": ["short limitation phrase", "short limitation phrase"],
+  "conclusion": "One plain-English sentence: the main takeaway"
 }
 Return ONLY the JSON. No preamble, no backticks.
 """,
 
     "gaps": """
-You are a critical research analyst. Read this paper and identify research gaps and open problems.
-Return a JSON object with these exact keys:
+You are a critical research analyst. Identify research gaps and opportunities.
+CRITICAL: All list items must be SHORT PHRASES of max 8-10 words. No full sentences. No copying from the paper.
+
 {
   "title": "paper title",
-  "unexplored_areas": ["gap 1", "gap 2", "gap 3"],
-  "methodological_weaknesses": ["weakness 1", "weakness 2"],
-  "dataset_limitations": ["limitation 1", "limitation 2"],
-  "future_work_suggestions": ["suggestion 1", "suggestion 2", "suggestion 3"],
-  "exploitable_constraints": ["constraint that could be addressed 1", "constraint 2"]
+  "unexplored_areas": ["short gap phrase", "short gap phrase", "short gap phrase"],
+  "methodological_weaknesses": ["short weakness phrase", "short weakness phrase"],
+  "dataset_limitations": ["short limitation phrase", "short limitation phrase"],
+  "exploitable_constraints": [
+    {"label": "very short label (3-4 words)", "why": "one short sentence on how to exploit this"},
+    {"label": "very short label", "why": "one short sentence"}
+  ],
+  "future_work_suggestions": ["short suggestion phrase", "short suggestion phrase", "short suggestion phrase"]
 }
 Return ONLY the JSON. No preamble, no backticks.
 """,
 
     "comparison": """
-You are a research analyst. Given the following papers, produce a structured comparison.
-Return a JSON object with these exact keys:
+You are a research analyst comparing multiple papers.
+CRITICAL: All list items must be SHORT PHRASES of max 8-10 words. No full sentences. No paragraphs.
+
 {
   "papers": [
     {
-      "title": "paper title",
-      "approach": "core method/approach",
-      "dataset": "dataset used",
-      "performance_metrics": "reported metrics or 'Not reported'",
-      "strengths": ["strength 1", "strength 2"],
-      "weaknesses": ["weakness 1", "weakness 2"]
+      "title": "short paper title",
+      "approach": "method name only (e.g. SVM, LSTM, Survey)",
+      "dataset": "dataset name and size only",
+      "performance": "best metric result only (e.g. AUC 0.87)",
+      "strengths": ["short phrase", "short phrase"],
+      "weaknesses": ["short phrase", "short phrase"]
     }
   ],
-  "common_themes": ["theme 1", "theme 2"],
-  "key_differences": ["difference 1", "difference 2"],
-  "best_approach_rationale": "which approach seems strongest and why"
+  "shared_gap": "One sentence: the gap ALL papers share",
+  "common_themes": ["short theme phrase", "short theme phrase"],
+  "key_differences": [
+    {"aspect": "what differs (e.g. Dataset size)", "summary": "short contrast phrase"}
+  ],
+  "winner": {
+    "title": "title of strongest paper",
+    "reason": "one short sentence why"
+  }
 }
 Return ONLY the JSON. No preamble, no backticks.
 """,
 
     "custom": """
-You are a research assistant. Answer the following question about the research paper(s) provided.
-Be structured. Return a JSON object with:
+You are a research assistant. Answer the question about the paper(s) clearly and simply.
+CRITICAL: key_points must be SHORT PHRASES of max 8-10 words. No copying from the paper. Plain English only.
+
 {
   "title": "paper title(s)",
   "question": "the question asked",
-  "answer": "your detailed answer",
-  "key_points": ["point 1", "point 2", "point 3"],
-  "caveats": ["caveat or limitation of your answer 1"]
+  "answer": "2-3 plain English sentences answering the question directly",
+  "key_points": ["short phrase", "short phrase", "short phrase"],
+  "caveats": ["short caveat phrase"]
+}
+Return ONLY the JSON. No preamble, no backticks.
+""",
+
+    "angles": """
+You are a research strategist helping a student find original research directions.
+Read the paper(s) and generate 3 concrete, actionable research angles they could pursue.
+CRITICAL: Be specific to this paper. No generic suggestions. Plain English. Short phrases for lists.
+
+{
+  "title": "paper title(s)",
+  "context_summary": "One sentence: what this paper does and its biggest gap",
+  "angles": [
+    {
+      "title": "Short catchy angle title (5-7 words)",
+      "idea": "2 plain-English sentences describing the research idea",
+      "builds_on": "short phrase — what from the paper you're extending",
+      "gap_addressed": "short phrase — what gap this fills",
+      "techniques": ["technique 1", "technique 2"],
+      "difficulty": "Easy / Medium / Hard",
+      "novelty": "Incremental / Moderate / High"
+    }
+  ],
+  "quick_win": "title of the easiest angle to start with",
+  "bold_bet": "title of the highest novelty angle"
 }
 Return ONLY the JSON. No preamble, no backticks.
 """
 }
 
-# ── PDF Extraction ───────────────────────────────────────────────────────────────
+# ── PDF Extraction ────────────────────────────────────────────────────────────
 def extract_text_from_pdf(path: str) -> str:
     doc = fitz.open(path)
     text = ""
     for page in doc:
         text += page.get_text()
     doc.close()
-    # Trim to ~30000 chars to stay well within Gemini's context
     return text[:30000]
 
-# ── Main Analyzer ────────────────────────────────────────────────────────────────
+# ── Main Analyzer ─────────────────────────────────────────────────────────────
 def analyze_papers(paths: list, lens: str, custom_query: str = "") -> dict:
     texts = []
     for path in paths:
-        text = extract_text_from_pdf(path)
-        texts.append(text)
+        texts.append(extract_text_from_pdf(path))
 
-    # Build prompt
-    if lens == "comparison" and len(texts) > 1:
+    multi_lens = lens in ("comparison", "custom", "angles")
+
+    if multi_lens:
         combined = "\n\n---NEXT PAPER---\n\n".join(
             [f"PAPER {i+1}:\n{t}" for i, t in enumerate(texts)]
         )
-        prompt = LENS_PROMPTS["comparison"] + "\n\nPAPERS:\n" + combined
-    elif lens == "custom":
-        combined = "\n\n---NEXT PAPER---\n\n".join(texts)
-        prompt = LENS_PROMPTS["custom"].replace("the question asked", custom_query)
-        prompt += f"\n\nQuestion: {custom_query}\n\nPAPER(S):\n{combined}"
+        prompt = LENS_PROMPTS.get(lens, LENS_PROMPTS["custom"])
+        if lens == "custom":
+            prompt = prompt.replace("the question asked", custom_query)
+            prompt += f"\n\nQuestion: {custom_query}"
+        prompt += f"\n\nPAPER(S):\n{combined}"
+
+        response = client.models.generate_content(model=MODEL, contents=prompt)
+        raw = re.sub(r"```json|```", "", response.text.strip()).strip()
+        try:
+            parsed = json.loads(raw)
+        except json.JSONDecodeError:
+            parsed = {"raw_response": raw, "parse_error": True}
+
+        return {"lens": lens, "count": len(paths), "results": [parsed]}
+
     else:
-        # For single-paper lenses, analyse each and return list
         results = []
-        for i, text in enumerate(texts):
+        for text in texts:
             prompt = LENS_PROMPTS.get(lens, LENS_PROMPTS["summary"])
             prompt += f"\n\nPAPER TEXT:\n{text}"
             response = client.models.generate_content(model=MODEL, contents=prompt)
-            raw = response.text.strip()
-            raw = re.sub(r"```json|```", "", raw).strip()
+            raw = re.sub(r"```json|```", "", response.text.strip()).strip()
             try:
                 parsed = json.loads(raw)
             except json.JSONDecodeError:
                 parsed = {"raw_response": raw, "parse_error": True}
             results.append(parsed)
 
-        return {
-            "lens": lens,
-            "count": len(results),
-            "results": results
-        }
-
-    # Single call for comparison / custom
-    response = client.models.generate_content(model=MODEL, contents=prompt)
-    raw = response.text.strip()
-    raw = re.sub(r"```json|```", "", raw).strip()
-    try:
-        parsed = json.loads(raw)
-    except json.JSONDecodeError:
-        parsed = {"raw_response": raw, "parse_error": True}
-
-    return {
-        "lens": lens,
-        "count": len(paths),
-        "results": [parsed]
-    }
+        return {"lens": lens, "count": len(results), "results": results}
