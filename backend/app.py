@@ -15,12 +15,7 @@ CORS(app)
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-@app.before_request
-def setup():
-    try:
-        init_db()
-    except Exception:
-        pass
+
 
 # ── Auth middleware ───────────────────────────────────────────────────────────
 def require_auth():
