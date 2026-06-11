@@ -42,7 +42,7 @@ export default function Home() {
     fd.append("lens", lens);
     fd.append("custom_query", customQuery);
     try {
-      const res = await axios.post("http://localhost:5000/analyze", fd, {
+      const res = await axios.post(`${process.env.REACT_APP_API_URL || "http://localhost:5000"}/analyze`, fd, {
         headers: { Authorization: `Bearer ${getToken()}` }
       });
       navigate("/results", { state: { data: res.data, files: files.map((f) => f.name) } });

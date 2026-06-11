@@ -15,13 +15,12 @@ CORS(app)
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# Init tables on startup
-with app.app_context():
+@app.before_request
+def setup():
     try:
         init_db()
-        print("✓ Database ready")
-    except Exception as e:
-        print(f"✗ DB init failed: {e}")
+    except Exception:
+        pass
 
 # ── Auth middleware ───────────────────────────────────────────────────────────
 def require_auth():
