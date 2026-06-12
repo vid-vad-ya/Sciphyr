@@ -124,8 +124,12 @@ Return ONLY the JSON. No preamble, no backticks.
 }
 
 # ── PDF Extraction ────────────────────────────────────────────────────────────
-def extract_text_from_pdf(path: str) -> str:
-    doc = fitz.open(path)
+def extract_text_from_pdf(source) -> str:
+    # Accepts bytes (in-memory) or a file path string
+    if isinstance(source, bytes):
+        doc = fitz.open(stream=source, filetype="pdf")
+    else:
+        doc = fitz.open(source)
     text = ""
     for page in doc:
         text += page.get_text()
@@ -133,10 +137,10 @@ def extract_text_from_pdf(path: str) -> str:
     return text[:30000]
 
 # ── Main Analyzer ─────────────────────────────────────────────────────────────
-def analyze_papers(paths: list, lens: str, custom_query: str = "") -> dict:
+def analyze_papers(streams: list, lens: str, custom_query: str = "") -> dict:
     texts = []
-    for path in paths:
-        texts.append(extract_text_from_pdf(path))
+    for stream in streams:
+        texts.append(extract_text_from_pdf(stream))
 
     multi_lens = lens in ("comparison", "custom", "angles")
 
@@ -157,7 +161,7 @@ def analyze_papers(paths: list, lens: str, custom_query: str = "") -> dict:
         except json.JSONDecodeError:
             parsed = {"raw_response": raw, "parse_error": True}
 
-        return {"lens": lens, "count": len(paths), "results": [parsed]}
+        return {"lens": lens, "count": len(streams), "results": [parsed]}
 
     else:
         results = []

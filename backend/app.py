@@ -12,10 +12,13 @@ from analyzer import analyze_papers
 app = Flask(__name__)
 CORS(app)
 
-UPLOAD_FOLDER = "uploads"
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
-
+# Init tables on startup
+with app.app_context():
+    try:
+        init_db()
+        print("✓ Database ready")
+    except Exception as e:
+        print(f"✗ DB init failed: {e}")
 
 # ── Auth middleware ───────────────────────────────────────────────────────────
 def require_auth():
@@ -63,20 +66,18 @@ def analyze():
     if not files or all(f.filename == "" for f in files):
         return jsonify({"error": "No files uploaded"}), 400
 
-    saved_paths = []
+    streams = []
     paper_names = []
     for f in files:
         if f.filename.endswith(".pdf"):
-            path = os.path.join(UPLOAD_FOLDER, f.filename)
-            f.save(path)
-            saved_paths.append(path)
+            streams.append(f.read())  # read into memory, no disk write
             paper_names.append(f.filename)
 
-    if not saved_paths:
+    if not streams:
         return jsonify({"error": "Only PDF files are supported"}), 400
 
     try:
-        result = analyze_papers(saved_paths, lens, custom_query)
+        result = analyze_papers(streams, lens, custom_query)
 
         # Save to DB
         try:
