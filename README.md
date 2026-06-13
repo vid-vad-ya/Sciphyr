@@ -14,6 +14,7 @@ Built from a real pain point: extensive literature surveys during research inter
 | **Gap Analysis** | Unexplored areas, weaknesses, exploitable constraints, future directions |
 | **Paper Comparison** | Upload 2–4 papers, get side-by-side methodology comparison |
 | **Custom Query** | Ask anything specific about the paper(s) |
+| **Research Angles** | Generates 3 concrete, actionable research directions you could pursue from the paper, with difficulty and novelty ratings — unique to Sciphyr  |
 
 ---
 
@@ -22,7 +23,7 @@ Built from a real pain point: extensive literature surveys during research inter
 - **Frontend**: React + React Router + React Dropzone
 - **Backend**: Flask + Flask-CORS
 - **PDF Parsing**: PyMuPDF (fitz)
-- **NLP Engine**: Google Gemini 1.5 Flash (free API)
+- **NLP Engine**: Google Gemini 2.5 Flash (free API)
 
 ---
 
