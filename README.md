@@ -1,69 +1,128 @@
 # ⬡ Sciphyr — Research Paper Intelligence Platform
 
-> Upload research papers. Choose your analysis lens. Get structured intelligence — not just summaries.
+> Upload a research paper. Choose your analysis lens. Get structured intelligence — not just a summary.
 
-Built from a real pain point: extensive literature surveys during research internships. Sciphyr uses Gemini 1.5 Flash to deliver deep, structured analysis of academic papers.
+Sciphyr is an NLP-powered web application that helps researchers and students extract meaningful insights from academic papers. Instead of restating the abstract, it surfaces gaps, exploitable constraints, methodology breakdowns, and original research directions.
+
+---
+
+## Live Demo
+*Deployment in progress — run locally using the instructions below.*
 
 ---
 
 ## Features
 
 | Lens | What it does |
-|------|-------------|
-| **Deep Summary** | Objective, methodology, dataset, findings, limitations |
-| **Gap Analysis** | Unexplored areas, weaknesses, exploitable constraints, future directions |
-| **Paper Comparison** | Upload 2–4 papers, get side-by-side methodology comparison |
-| **Custom Query** | Ask anything specific about the paper(s) |
+|---|---|
+| **Deep Summary** | Extracts objective, methodology flowchart, dataset stats, key findings, and limitations in structured visual format |
+| **Gap Analysis** | Surfaces unexplored areas, methodological weaknesses, and exploitable constraints — your entry points for original contribution |
+| **Paper Comparison** | Upload 2–4 papers and get a side-by-side comparison matrix across method, dataset, metrics, strengths and weaknesses |
+| **Custom Query** | Ask anything specific — *"What ML techniques could improve this model's PPV?"* |
+| **Research Angles** | Generates 3 concrete, actionable research directions you could pursue from the paper, with difficulty and novelty ratings |
 
 ---
 
 ## Tech Stack
 
-- **Frontend**: React + React Router + React Dropzone
-- **Backend**: Flask + Flask-CORS
-- **PDF Parsing**: PyMuPDF (fitz)
-- **NLP Engine**: Google Gemini 1.5 Flash (free API)
+### Backend
+- **Flask** — REST API server
+- **PyMuPDF** — PDF text extraction (in-memory, no disk writes)
+- **Google Gemini 2.5 Flash** — NLP analysis engine via structured prompt engineering
+- **bcrypt** — Password hashing
+- **PyJWT** — JSON Web Token authentication
+- **PostgreSQL / SQLite** — User and analysis history storage (auto-detects environment)
+
+### Frontend
+- **React** — UI framework
+- **React Router** — Client-side routing with protected routes
+- **Axios** — API communication
+- **React Dropzone** — PDF upload interface
+
+### Infrastructure
+- **Vercel** — Frontend and backend hosting
+- **Supabase / SQLite** — Database (cloud/local)
 
 ---
 
-## Setup
+## NLP Concepts Used
 
-### 1. Get Gemini API Key
-- Go to https://aistudio.google.com
-- Create a new API key (free)
+- **Prompt Engineering** — Structured JSON extraction with constrained output formatting
+- **Document Chunking** — Long PDF handling within LLM context limits (30k char window)
+- **Information Extraction** — Field-level structured extraction from unstructured academic text
+- **Multi-document Analysis** — Comparative reasoning across multiple papers in a single prompt
+- **Domain-aware Querying** — Custom research lens prompts tuned for academic paper structure
 
-### 2. Backend Setup
+---
+
+## Architecture
+
+```
+React Frontend (Vercel)
+       ↓  JWT in Authorization header
+Flask Backend (Vercel)
+       ↓  PDF bytes (in-memory)
+PyMuPDF → text extraction
+       ↓  structured prompt
+Gemini 1.5 Flash API
+       ↓  JSON response
+PostgreSQL/SQLite ← save analysis history
+       ↓
+Structured JSON → React renders visual components
+```
+
+---
+
+## Local Setup
+
+### Prerequisites
+- Python 3.10+
+- Node.js 18+
+- Google Gemini API key (free at [aistudio.google.com](https://aistudio.google.com))
+
+### Backend
 
 ```bash
 cd backend
-
-# Create virtual environment
 python -m venv venv
 venv\Scripts\activate        # Windows
 # source venv/bin/activate   # Mac/Linux
 
-# Install dependencies
 pip install -r requirements.txt
 
-# Set API key
+# Create .env file
 copy .env.example .env
-# Edit .env and paste your Gemini API key
+# Add your GEMINI_API_KEY and JWT_SECRET to .env
 
-# Run
 python app.py
+# Backend runs at http://localhost:5000
+# SQLite database created automatically — no setup needed
 ```
 
-Backend runs on http://localhost:5000
-
-### 3. Frontend Setup
+### Frontend
 
 ```bash
 cd frontend
 npm install
 npm start
+# Frontend runs at http://localhost:3000
 ```
 
-Frontend runs on http://localhost:3000
+---
+
+## Environment Variables
+
+### Backend (`.env`)
+```
+GEMINI_API_KEY=your_gemini_api_key
+JWT_SECRET=any_long_random_string
+DATABASE_URL=postgresql://...  # optional — uses SQLite if not set
+```
+
+### Frontend (Vercel dashboard or `.env.production`)
+```
+REACT_APP_API_URL=https://your-backend-url.vercel.app
+```
 
 ---
 
@@ -72,40 +131,45 @@ Frontend runs on http://localhost:3000
 ```
 sciphyr/
 ├── backend/
-│   ├── app.py           # Flask routes
-│   ├── analyzer.py      # PDF extraction + Gemini calls + prompt engineering
+│   ├── app.py          # Flask routes (auth + analyze + history)
+│   ├── analyzer.py     # PDF extraction + Gemini prompt engineering
+│   ├── auth.py         # bcrypt hashing + JWT generation/verification
+│   ├── db.py           # Auto-switching PostgreSQL/SQLite connector
 │   ├── requirements.txt
+│   ├── vercel.json
 │   └── .env.example
 └── frontend/
-    ├── public/
-    │   └── index.html
     └── src/
-        ├── App.jsx
-        ├── index.css    # Global dark academic theme
-        ├── index.js
+        ├── context/
+        │   └── AuthContext.jsx   # Global auth state + token management
+        ├── components/
+        │   └── Navbar.jsx        # Persistent nav with auth state
         └── pages/
-            ├── Home.jsx / Home.css     # Upload + lens selection
-            └── Results.jsx / Results.css  # Structured output rendering
+            ├── Landing.jsx       # About/home page
+            ├── AuthPage.jsx      # Login + Register (single page)
+            ├── Home.jsx          # Upload + lens selector
+            └── Results.jsx       # Visual output renderers per lens
 ```
 
 ---
 
-## How It Works 
+## Security
 
-1. **PDF Parsing**: PyMuPDF extracts raw text from uploaded papers, trimmed to ~30,000 chars to stay within API limits.
-
-2. **Prompt Engineering**: Each lens has a carefully crafted system prompt that instructs Gemini to return structured JSON with specific keys relevant to that analysis type.
-
-3. **Multi-paper handling**: For comparison mode, all paper texts are concatenated with separators and sent in a single prompt. For other lenses, papers are analysed individually and results are returned as a list.
-
-4. **Structured Output**: The backend enforces JSON-only output from Gemini and parses it server-side before returning to the frontend. If parsing fails, the raw response is passed through (graceful degradation).
-
-5. **Frontend rendering**: Each lens type has its own React renderer that maps JSON keys to styled UI components — no generic blob of text.
+- Passwords hashed with **bcrypt** (never stored in plain text)
+- Authentication via **JWT tokens** (7-day expiry)
+- `/analyze` route protected — unauthenticated requests return 401
+- API keys stored in environment variables only — never in code
+- `.gitignore` excludes `.env`, `venv/`, and `node_modules/`
 
 ---
 
+## Roadmap
 
+- [ ] Export analysis as PDF/Markdown report
+- [ ] Analysis history dashboard
+- [ ] Batch upload and cross-paper synthesis
+- [ ] Browser extension for one-click paper analysis
 
+---
 
-
-
+*Built to solve a real problem — extensive literature surveys during ML research internships.*
