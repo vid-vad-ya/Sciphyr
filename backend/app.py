@@ -81,12 +81,19 @@ def analyze():
 
         # Save to DB
         try:
+            from db import USE_POSTGRES
             conn = get_conn()
             cur  = conn.cursor()
-            cur.execute(
-                "INSERT INTO analyses (user_id, lens, paper_names, result_json) VALUES (%s, %s, %s, %s)",
-                (payload["user_id"], lens, paper_names, json.dumps(result))
-            )
+            if USE_POSTGRES:
+                cur.execute(
+                    "INSERT INTO analyses (user_id, lens, paper_names, result_json) VALUES (%s, %s, %s, %s)",
+                    (payload["user_id"], lens, paper_names, json.dumps(result))
+                )
+            else:
+                cur.execute(
+                    "INSERT INTO analyses (user_id, lens, paper_names, result_json) VALUES (?, ?, ?, ?)",
+                    (payload["user_id"], lens, str(paper_names), json.dumps(result))
+                )
             conn.commit(); cur.close(); conn.close()
         except Exception as db_err:
             print(f"DB save error: {db_err}")  # non-fatal

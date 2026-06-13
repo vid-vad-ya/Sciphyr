@@ -2,12 +2,11 @@ import bcrypt
 import jwt
 import os
 from datetime import datetime, timedelta, timezone
-from db import get_conn
+from db import get_conn, USE_POSTGRES
 
 SECRET = os.environ.get("JWT_SECRET", "sciphyr_dev_secret")
 
-# ── Register ──────────────────────────────────────────────────────────────────
-def register_user(name: str, email: str, password: str):
+def register_user(name, email, password):
     if not name or not email or not password:
         return None, "All fields are required"
     if len(password) < 6:
@@ -17,12 +16,19 @@ def register_user(name: str, email: str, password: str):
 
     try:
         conn = get_conn()
-        cur  = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-        cur.execute(
-            "INSERT INTO users (name, email, password) VALUES (%s, %s, %s) RETURNING id, name, email",
-            (name, email, hashed)
-        )
-        user = cur.fetchone()
+        cur  = conn.cursor()
+        if USE_POSTGRES:
+            cur.execute(
+                "INSERT INTO users (name, email, password) VALUES (%s, %s, %s) RETURNING id, name, email",
+                (name, email, hashed)
+            )
+            user = dict(cur.fetchone())
+        else:
+            cur.execute(
+                "INSERT INTO users (name, email, password) VALUES (?, ?, ?)",
+                (name, email, hashed)
+            )
+            user = {"id": cur.lastrowid, "name": name, "email": email}
         conn.commit(); cur.close(); conn.close()
         return _make_token(user), None
     except Exception as e:
@@ -30,18 +36,22 @@ def register_user(name: str, email: str, password: str):
             return None, "Email already registered"
         return None, str(e)
 
-# ── Login ─────────────────────────────────────────────────────────────────────
-def login_user(email: str, password: str):
+def login_user(email, password):
     if not email or not password:
         return None, None, "Email and password are required"
     try:
         conn = get_conn()
-        cur  = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-        cur.execute("SELECT * FROM users WHERE email = %s", (email,))
-        user = cur.fetchone(); cur.close(); conn.close()
+        cur  = conn.cursor()
+        if USE_POSTGRES:
+            cur.execute("SELECT * FROM users WHERE email = %s", (email,))
+        else:
+            cur.execute("SELECT * FROM users WHERE email = ?", (email,))
+        row = cur.fetchone(); cur.close(); conn.close()
 
-        if not user:
+        if not row:
             return None, None, "No account found with that email"
+
+        user = dict(row)
         if not bcrypt.checkpw(password.encode(), user["password"].encode()):
             return None, None, "Incorrect password"
 
@@ -50,8 +60,7 @@ def login_user(email: str, password: str):
     except Exception as e:
         return None, None, str(e)
 
-# ── Verify JWT ────────────────────────────────────────────────────────────────
-def verify_token(token: str):
+def verify_token(token):
     try:
         payload = jwt.decode(token, SECRET, algorithms=["HS256"])
         return payload, None
@@ -60,7 +69,6 @@ def verify_token(token: str):
     except jwt.InvalidTokenError:
         return None, "Invalid token"
 
-# ── Helper ────────────────────────────────────────────────────────────────────
 def _make_token(user):
     payload = {
         "user_id": user["id"],
@@ -69,5 +77,3 @@ def _make_token(user):
         "exp":     datetime.now(timezone.utc) + timedelta(days=7)
     }
     return jwt.encode(payload, SECRET, algorithm="HS256")
-
-import psycopg2.extras  # ensure import available
