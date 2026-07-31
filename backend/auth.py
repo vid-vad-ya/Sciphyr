@@ -3,6 +3,7 @@ import jwt
 import os
 from datetime import datetime, timedelta, timezone
 from db import get_conn, USE_POSTGRES
+import psycopg2.extras
 
 SECRET = os.environ.get("JWT_SECRET", "sciphyr_dev_secret")
 
@@ -16,7 +17,7 @@ def register_user(name, email, password):
 
     try:
         conn = get_conn()
-        cur  = conn.cursor()
+        cur  = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         if USE_POSTGRES:
             cur.execute(
                 "INSERT INTO users (name, email, password) VALUES (%s, %s, %s) RETURNING id, name, email",

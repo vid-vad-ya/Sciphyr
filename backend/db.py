@@ -12,6 +12,7 @@ if USE_POSTGRES:
 
     def get_conn():
         return psycopg2.connect(DATABASE_URL)
+        return conn
 
     def init_db():
         conn = get_conn()
