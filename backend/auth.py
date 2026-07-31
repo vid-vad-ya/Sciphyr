@@ -42,7 +42,7 @@ def login_user(email, password):
         return None, None, "Email and password are required"
     try:
         conn = get_conn()
-        cur  = conn.cursor()
+        cur  =  conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         if USE_POSTGRES:
             cur.execute("SELECT * FROM users WHERE email = %s", (email,))
         else:
